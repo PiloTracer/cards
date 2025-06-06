@@ -1,23 +1,26 @@
 services:
   db:
     image: postgres:17.5-alpine3.22
-    environment:
-      POSTGRES_USER: cards
-      POSTGRES_PASSWORD: cards
-      POSTGRES_DB: cards
-    # Expose the port to Windows hosts (optional but handy for DBeaver, VS Code, etc.)
+    env_file: .env                     # loads values from .env
+
+    environment:                       # ← mapping, no dashes
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+
     ports:
       - "0.0.0.0:5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
 
-    # Health-check must escape the $ so the shell in the container sees it
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 5s
+
+    restart: unless-stopped
 
   redis:
     image: redis:8.0.2-alpine
