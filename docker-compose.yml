@@ -31,8 +31,9 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
+    env_file: .env
     environment:
-      DATABASE_URL: postgres+asyncpg://cards:cards@db:5432/cards
+      DATABASE_URL: ${DATABASE_URL}
       CELERY_BROKER_URL: redis://redis:6379/0
     volumes:
       - ./backend:/app/backend            # hot-reload
@@ -47,8 +48,9 @@ services:
     build:
       context: .
       dockerfile: worker/Dockerfile
+    env_file: .env
     environment:
-      DATABASE_URL: postgres+asyncpg://cards:cards@db:5432/cards
+      DATABASE_URL: ${DATABASE_URL}
       CELERY_BROKER_URL: redis://redis:6379/0
     depends_on:
       - redis
