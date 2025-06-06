@@ -13,3 +13,4 @@ passlib[bcrypt]~=1.7
 pydantic[email]~=2.7
 pydantic-settings~=2.2     # ← new
 alembic~=1.13
+psycopg2-binary~=2.9
