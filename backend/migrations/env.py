@@ -5,6 +5,7 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 from app.models import base  # make sure models are imported!  <-- KEEP
+from app.models import company, user   # 👈 make metadata include all tables
 
 # ──────────────────────────────────────────────────────────────
 # Alembic config & logging
