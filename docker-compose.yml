@@ -1,0 +1,64 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: cards
+      POSTGRES_PASSWORD: cards
+      POSTGRES_DB: cards
+      TZ: America/Costa_Rica
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      interval: 10s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      DATABASE_URL: postgres+asyncpg://cards:cards@db:5432/cards
+      CELERY_BROKER_URL: redis://redis:6379/0
+    volumes:
+      - ./backend:/app/backend            # hot-reload
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+  worker:
+    build:
+      context: .
+      dockerfile: worker/Dockerfile
+    environment:
+      DATABASE_URL: postgres+asyncpg://cards:cards@db:5432/cards
+      CELERY_BROKER_URL: redis://redis:6379/0
+    depends_on:
+      - redis
+      - db
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_TELEMETRY_DISABLED: "1"
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
+  redis_data:
