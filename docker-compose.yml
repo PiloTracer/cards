@@ -7,7 +7,7 @@ services:
       POSTGRES_DB: cards
     # Expose the port to Windows hosts (optional but handy for DBeaver, VS Code, etc.)
     ports:
-      - "5432:5432"
+      - "0.0.0.0:5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
 
@@ -34,7 +34,7 @@ services:
     volumes:
       - ./backend:/app/backend            # hot-reload
     ports:
-      - "8000:8000"
+      - "0.0.0.0:8000:8000"
     depends_on:
       db:
         condition: service_healthy
@@ -54,13 +54,16 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: frontend/Dockerfile
-    volumes:
-      - ./frontend:/app
-    ports:
-      - "3000:3000"
+      dockerfile: frontend/Dockerfile    # path above
+    command: pnpm dev --port 3000        # redundancy OK
     environment:
       NEXT_TELEMETRY_DISABLED: "1"
+      NODE_ENV: development
+    volumes:
+      - ./frontend:/app                  # live code
+      - /app/node_modules                # anonymous volume keeps deps safe
+    ports:
+      - "6405:3000"                      # host:container
     depends_on:
       - backend
 
