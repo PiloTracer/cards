@@ -1,0 +1,9 @@
+# Runtime artefacts we never want inside the build context
+**/node_modules
+**/.pnpm
+**/.next
+**/.turbo
+# Misc
+.git
+.vscode
+.DS_Store

@@ -6,3 +6,4 @@ pandas   # excel parsing
 python-multipart  # form uploads
 celery[redis]
 python-dotenv
+billiard>=4.2.1,<5.0

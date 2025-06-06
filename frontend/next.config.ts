@@ -1,7 +1,9 @@
+// frontend/next.config.ts
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  output: "standalone",          // ← add this line
+  /* other config options here */
 };
 
 export default nextConfig;
