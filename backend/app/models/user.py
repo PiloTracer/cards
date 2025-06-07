@@ -6,7 +6,8 @@ from .base import Base, PK_UUID
 
 
 class Role(str, enum.Enum):
-    owner = "owner"           # global admin
+    owner = "owner"
+    administrator = "administrator"
     collaborator = "collaborator"
     standard = "standard"
 
