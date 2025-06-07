@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     database_url: str = Field(..., env="DATABASE_URL")   # accept async driver
     secret_key: str = Field(..., env="SECRET_KEY")
     access_token_expire_minutes: int = 60 * 24  # 1 day
-    upload_dir: str = Field("/data/uploads/records", env="UPLOAD_DIR")
+    upload_dir: str = Field("/data/uploads", env="UPLOAD_DIR")
 
     # Pydantic-v2 settings: replace old `class Config`
     model_config = SettingsConfigDict(

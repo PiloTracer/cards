@@ -34,7 +34,7 @@ from app.schemas.employee import EmployeeCreate, EmployeeRead
 router = APIRouter(prefix="/employee-records", tags=["employee_records"])
 settings = get_settings()
 
-UPLOAD_ROOT = Path(settings.upload_dir or "/data/uploads/records")
+UPLOAD_ROOT = Path(settings.upload_dir or "/data/uploads").joinpath("records")
 
 
 def _collapse(text: str | None) -> str:
