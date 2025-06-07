@@ -7,5 +7,6 @@ class Company(Base):
 
     id: Mapped[PK_UUID]
     name: Mapped[str] = mapped_column(unique=True, index=True)
+    phone_prefix: Mapped[str | None] = mapped_column(nullable=True)   # ✅ new
 
     users: Mapped[list["User"]] = relationship(back_populates="company", cascade="all,delete")

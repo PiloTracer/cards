@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 class CompanyBase(BaseModel):
     name: str
+    phone_prefix: str | None = None          # ✅ new
 
 
 class CompanyCreate(CompanyBase):
