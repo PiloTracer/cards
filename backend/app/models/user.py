@@ -21,6 +21,15 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(default=True)
     company_id: Mapped[UUID | None] = mapped_column(ForeignKey("companies.id"), nullable=True)
 
+    # card (optional)
+    card_full_name: Mapped[str | None]
+    card_email: Mapped[str | None] = mapped_column(index=True)
+    card_mobile_phone: Mapped[str | None]
+    card_job_title: Mapped[str | None]
+    card_office_phone: Mapped[str | None]
+    card_web: Mapped[str | None]
+
+    # relationships
     company: Mapped["Company | None"] = relationship(back_populates="users")
 
     created_at: Mapped[dt.datetime] = mapped_column(default=dt.datetime.utcnow)
