@@ -28,6 +28,12 @@ from app.models.user import Role
 from app.schemas.batch import BatchRead
 from app.schemas.collabcard import CollabCardCreate, CollabCardRead
 
+# ────────────────────────────────────────────────
+# NEW 3. Create batch from existing users
+# ────────────────────────────────────────────────
+from pydantic import BaseModel, Field, validator
+from sqlalchemy import select, func
+
 # ──────────────────────────────────────────────────────────────
 # router / constants
 # ──────────────────────────────────────────────────────────────
@@ -268,4 +274,140 @@ async def upload_collabcard_xlsx(
         action="upload_xlsx",
         details={"filename": file.filename, "records": batch.total_records},
     )
+    return batch
+
+######################## BATCH FROM USERS ##########################
+# ------------------------------------------------------------------
+# 3A. request / response schemas
+# ------------------------------------------------------------------
+class _BatchFromUsersBody(BaseModel):
+    """Payload for /collabcards/from-users"""
+
+    company_id: uuid.UUID | None = Field(
+        None,
+        description="Company that owns the batch. "
+        "Global owners / admins must supply this. "
+        "Company owners / admins must omit or match their own company.",
+    )
+    user_ids: List[uuid.UUID] = Field(
+        ...,
+        min_items=1,
+        description="List of user IDs to include in the batch",
+    )
+
+    # eliminate accidental duplicates early
+    @validator("user_ids", pre=True)
+    def _dedupe(cls, v):
+        return list(dict.fromkeys(v))
+
+
+# ------------------------------------------------------------------
+# 3B. role helper – “administrator” is optional
+# ------------------------------------------------------------------
+_ALLOWED_ROLES = {"owner", "administrator"}  # string names, tolerant of enum
+
+def _raise_if_not_admin(current: User) -> None:
+    if current.role.value not in _ALLOWED_ROLES:  # Role -> str
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only owners or administrators can call this endpoint",
+        )
+
+
+# ------------------------------------------------------------------
+# 3C. endpoint implementation
+# ------------------------------------------------------------------
+@router.post(
+    "/from-users",
+    response_model=BatchRead,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create CollabCard batch from existing users",
+)
+async def create_collabcard_batch_from_users(
+    body: _BatchFromUsersBody,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
+    current: User = Depends(get_current_user),
+):
+    """
+    * Global **owner / administrator** – pass **any** `company_id`
+      and *any* users belonging to it.
+
+    * **Company owner / administrator** – `company_id` is optional
+      (defaults to caller’s company) **and all users must belong to
+      that same company**.
+    """
+    # ── authorisation ────────────────────────────────────────────
+    _raise_if_not_admin(current)  # must be owner/admin
+
+    # resolve company in scope
+    target_company_id = _company_guard(current, body.company_id)
+
+    if target_company_id is None:
+        raise HTTPException(
+            status_code=400,
+            detail="company_id is required for a global batch",
+        )
+
+    # ── fetch & validate users ──────────────────────────────────
+    stmt = (
+        select(User)
+        .where(User.id.in_(body.user_ids))
+        .where(User.company_id == target_company_id)
+    )
+    users = (await db.execute(stmt)).scalars().all()
+
+    if len(users) != len(body.user_ids):
+        found_ids = {u.id for u in users}
+        missing = [str(uid) for uid in body.user_ids if uid not in found_ids]
+        raise HTTPException(
+            status_code=404,
+            detail=f"These user_ids were not found for this company: {missing}",
+        )
+
+    # ── create batch shell ──────────────────────────────────────
+    batch = Batch(
+        company_id=target_company_id,
+        created_by=current.id,
+        original_filename=None,
+        total_records=len(users),
+        processed_records=0,
+        status=BatchStatus.pending,
+    )
+    db.add(batch)
+    await db.flush()  # we need batch.id
+
+    # ── create CollabCard rows in chunks for efficiency ─────────
+    buffer: list[CollabCard] = []
+    for usr in users:
+        buffer.append(
+            CollabCard(
+                batch_id=batch.id,
+                company_id=target_company_id,
+                created_by=current.id,
+                full_name=usr.card_full_name or usr.email.split("@")[0],
+                email=usr.card_email or usr.email,
+                mobile_phone=usr.card_mobile_phone,
+                job_title=usr.card_job_title,
+                office_phone=usr.card_office_phone,
+            )
+        )
+    db.add_all(buffer)
+    await db.commit()
+    await db.refresh(batch)
+
+    # ── audit entry (fire-and-forget) ───────────────────────────
+    background_tasks.add_task(
+        _log,
+        db=db,
+        user_id=current.id,
+        entity_type="batch",
+        entity_id=batch.id,
+        action="create_from_users",
+        details={
+            "user_count": len(users),
+            "company_id": str(target_company_id),
+        },
+    )
+
     return batch
