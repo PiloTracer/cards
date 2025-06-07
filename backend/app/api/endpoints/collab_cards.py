@@ -431,6 +431,11 @@ def _assert_owner_or_admin(user: User) -> None:
 # ────────────────────────────────────────────────
 # 5. List *in-flight* batches for a company
 # ────────────────────────────────────────────────
+"""
+GET /collabcards/pending-batches
+Purpose: All batches for a company created in the last 7 days where processed_records < total_records.
+Who can call: Owner / Administrator (global or company).
+"""
 from datetime import datetime, timedelta
 from sqlalchemy import select, and_
 
@@ -494,6 +499,10 @@ async def list_collabcards_in_batch(
     current: User = Depends(get_current_user),
 ):
     """
+    url: /collabcards/batch/{batch_id}/records
+    purpose: Returns all CollabCard rows inside the batch.
+    who can: Owner / Administrator of the batch’s company, or any global owner / admin.
+
     Fetches **every** `CollabCard` that belongs to `batch_id`.
 
     Access is restricted to owners / administrators
