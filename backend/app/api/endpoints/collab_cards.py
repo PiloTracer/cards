@@ -411,3 +411,109 @@ async def create_collabcard_batch_from_users(
     )
 
     return batch
+
+
+
+
+######################## GETTING BATCH DATA ##########################
+# ────────────────────────────────────────────────
+# 4. Utility – role check helper reused below
+# ────────────────────────────────────────────────
+def _assert_owner_or_admin(user: User) -> None:
+    """Allow only global/company *owner* or *administrator*."""
+    if user.role.value not in _ALLOWED_ROLES:        # ← defined earlier
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only owners or administrators can access this endpoint",
+        )
+
+
+# ────────────────────────────────────────────────
+# 5. List *in-flight* batches for a company
+# ────────────────────────────────────────────────
+from datetime import datetime, timedelta
+from sqlalchemy import select, and_
+
+@router.get(
+    "/pending-batches",
+    response_model=list[BatchRead],
+    summary="Batches (<7 days) with pending records",
+)
+async def list_pending_batches(
+    company_id: uuid.UUID | None = Query(
+        None,
+        description="Company to inspect (required for global owners/admins)",
+    ),
+    db: AsyncSession = Depends(get_db),
+    current: User = Depends(get_current_user),
+):
+    """
+    Returns batches **created in the last 7 days** whose
+    `processed_records < total_records`.
+
+    * Global owners / administrators – provide any `company_id`.  
+    * Company owners / administrators – omit `company_id`
+      (defaults to caller’s company).
+    """
+    _assert_owner_or_admin(current)
+
+    target_company_id = _company_guard(current, company_id)
+    if target_company_id is None:
+        raise HTTPException(
+            400, detail="company_id is required for a global query"
+        )
+
+    seven_days_ago = datetime.utcnow() - timedelta(days=7)
+
+    stmt = (
+        select(Batch)
+        .where(
+            and_(
+                Batch.company_id == target_company_id,
+                Batch.created_at >= seven_days_ago,
+                Batch.processed_records < Batch.total_records,
+            )
+        )
+        .order_by(Batch.created_at.desc())
+    )
+    res = await db.execute(stmt)
+    return res.scalars().all()
+
+
+# ────────────────────────────────────────────────
+# 6. Get all CollabCards for a specific batch
+# ────────────────────────────────────────────────
+@router.get(
+    "/batch/{batch_id}/records",
+    response_model=list[CollabCardRead],
+    summary="All records inside one batch",
+)
+async def list_collabcards_in_batch(
+    batch_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    current: User = Depends(get_current_user),
+):
+    """
+    Fetches **every** `CollabCard` that belongs to `batch_id`.
+
+    Access is restricted to owners / administrators
+    (global or company-scoped).
+    """
+    _assert_owner_or_admin(current)
+
+    # ── fetch batch first (authorisation) ──────────────────────
+    batch: Batch | None = (
+        await db.execute(select(Batch).where(Batch.id == batch_id))
+    ).scalar_one_or_none()
+    if not batch:
+        raise HTTPException(404, detail="Batch not found")
+
+    _company_guard(current, batch.company_id)  # raises if forbidden
+
+    # ── fetch records ─────────────────────────────────────────
+    res = await db.execute(
+        select(CollabCard)
+        .where(CollabCard.batch_id == batch_id)
+        .order_by(CollabCard.created_at.asc())
+    )
+    return res.scalars().all()
