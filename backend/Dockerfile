@@ -28,4 +28,8 @@ COPY backend /app
 # expose app + debug ports (for docs only)
 EXPOSE 8000 5678
 
-CMD ["python", "-m", "debugpy", "--listen", "0.0.0.0:5678", "--wait-for-client", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--reload-dir", "/app/backend"]
+CMD ["python", "-Xfrozen_modules=off", \
+     "-m", "debugpy", "--listen", "0.0.0.0:5678", "--wait-for-client", \
+     "-m", "uvicorn", "app.main:app", \
+     "--host", "0.0.0.0", "--port", "8000", \
+     "--reload", "--reload-dir", "/app/backend"]
