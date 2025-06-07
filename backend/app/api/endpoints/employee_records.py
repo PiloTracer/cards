@@ -118,7 +118,7 @@ async def create_single_employee(
         created_by=current.id,
         original_filename=None,
         total_records=1,
-        processed_records=1,
+        processed_records=0,
         status=BatchStatus.pending,
     )
     db.add(batch)
@@ -249,7 +249,7 @@ async def upload_employee_xlsx(
             db.add_all(buffer)
 
         batch.total_records = total
-        batch.processed_records = total
+        batch.processed_records = 0
         batch.status = BatchStatus.pending
         await db.commit()
 
