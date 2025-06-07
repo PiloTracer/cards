@@ -20,7 +20,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import get_current_user, get_db
 from app.core.config import get_settings
-from app.models import AuditLog, Batch, EmployeeRecord, User
+from app.models import AuditLog, Batch, CollabCard, User
 from app.models.enums import BatchStatus, RecordStatus
 from app.models.user import Role
 from app.schemas.batch import BatchRead
@@ -109,12 +109,12 @@ async def upload_cards(
     now = dt.datetime.utcnow()
     saved = 0
 
-    # build a map of employee_record.id → record
-    records_by_id: dict[uuid.UUID, EmployeeRecord] = {
+    # build a map of cp;p;.id → record
+    records_by_id: dict[uuid.UUID, CollabCard] = {
         r.id: r
         for r in (
             await db.execute(
-                select(EmployeeRecord).where(EmployeeRecord.batch_id == batch.id)
+                select(CollabCard).where(CollabCard.batch_id == batch.id)
             )
         ).scalars()
     }

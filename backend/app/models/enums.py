@@ -2,9 +2,9 @@ import enum
 
 
 class BatchStatus(str, enum.Enum):
-    pending = "pending"       # file uploaded / record typed, not processed
+    pending = "pending"
     processing = "processing"
-    completed = "completed"   # all employee records generated
+    completed = "completed"
     error = "error"
 
 

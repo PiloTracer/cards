@@ -4,7 +4,7 @@ from pydantic import BaseModel, EmailStr
 from app.models.enums import RecordStatus
 
 
-class EmployeeCreate(BaseModel):
+class CollabCardCreate(BaseModel):
     full_name: str
     email: EmailStr
     mobile_phone: str | None = None
@@ -12,7 +12,7 @@ class EmployeeCreate(BaseModel):
     office_phone: str | None = None
 
 
-class EmployeeRead(EmployeeCreate):
+class CollabCardRead(CollabCardCreate):
     id: UUID
     status: RecordStatus
     card_filename: str | None

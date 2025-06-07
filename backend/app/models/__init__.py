@@ -5,5 +5,5 @@ from .base import Base  # noqa: F401
 from .company import Company
 from .user import User
 from .batch import Batch
-from .employee import EmployeeRecord
+from .collabcard import CollabCard
 from .audit import AuditLog

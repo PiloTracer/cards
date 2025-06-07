@@ -19,6 +19,6 @@ class Batch(Base, TimeStampMixin):
     status: Mapped[BatchStatus] = mapped_column(default=BatchStatus.pending)
 
     # relationships
-    records: Mapped[list["EmployeeRecord"]] = relationship(
+    records: Mapped[list["CollabCard"]] = relationship(
         back_populates="batch", cascade="all,delete-orphan"
     )

@@ -7,8 +7,8 @@ from .mixins import TimeStampMixin
 from .enums import RecordStatus
 
 
-class EmployeeRecord(Base, TimeStampMixin):
-    __tablename__ = "employee_records"
+class CollabCard(Base, TimeStampMixin):
+    __tablename__ = "collabcards"
 
     id: Mapped[PK_UUID] = mapped_column(default=uuid4)
     batch_id: Mapped[UUID] = mapped_column(ForeignKey("batches.id"))

@@ -1,4 +1,4 @@
-# backend/app/api/endpoints/employee_records.py
+# backend/app/api/endpoints/collabcards.py
 from __future__ import annotations
 
 import re
@@ -22,16 +22,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import get_current_user, get_db
 from app.core.config import get_settings
-from app.models import AuditLog, Batch, EmployeeRecord, User
+from app.models import AuditLog, Batch, CollabCard, User
 from app.models.enums import BatchStatus
 from app.models.user import Role
 from app.schemas.batch import BatchRead
-from app.schemas.employee import EmployeeCreate, EmployeeRead
+from app.schemas.collabcard import CollabCardCreate, CollabCardRead
 
 # ──────────────────────────────────────────────────────────────
 # router / constants
 # ──────────────────────────────────────────────────────────────
-router = APIRouter(prefix="/employee-records", tags=["employee_records"])
+router = APIRouter(prefix="/collabcards", tags=["collabcards"])
 settings = get_settings()
 
 UPLOAD_ROOT = Path(settings.upload_dir or "/data/uploads").joinpath("records")
@@ -103,9 +103,9 @@ def _company_guard(current: User, company_id: uuid.UUID | None) -> uuid.UUID | N
 # ────────────────────────────────────────────────
 # 1. Single record endpoint (unchanged)
 # ────────────────────────────────────────────────
-@router.post("/", response_model=EmployeeRead, status_code=status.HTTP_201_CREATED)
-async def create_single_employee(
-    body: EmployeeCreate,
+@router.post("/", response_model=CollabCardRead, status_code=status.HTTP_201_CREATED)
+async def create_single_collabcard(
+    body: CollabCardCreate,
     background_tasks: BackgroundTasks,
     company_id: uuid.UUID | None = Query(None),
     db: AsyncSession = Depends(get_db),
@@ -124,7 +124,7 @@ async def create_single_employee(
     db.add(batch)
     await db.flush()
 
-    record = EmployeeRecord(
+    record = CollabCard(
         batch_id=batch.id,
         company_id=target_company_id,
         created_by=current.id,
@@ -138,7 +138,7 @@ async def create_single_employee(
         _log,
         db=db,
         user_id=current.id,
-        entity_type="employee_record",
+        entity_type="collab_card",
         entity_id=record.id,
         action="create",
         details={"via": "typed"},
@@ -154,7 +154,7 @@ async def create_single_employee(
     response_model=BatchRead,
     status_code=status.HTTP_202_ACCEPTED,
 )
-async def upload_employee_xlsx(
+async def upload_collabcard_xlsx(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     company_id: uuid.UUID | None = Query(None),
@@ -202,7 +202,7 @@ async def upload_employee_xlsx(
         if not header_map:
             raise ValueError(f"missing columns {REQUIRED_FIELDS}")
 
-        buffer: List[EmployeeRecord] = []
+        buffer: List[CollabCard] = []
         total = 0
 
         # ── row loop ───────────────────────────────────────────
@@ -233,7 +233,7 @@ async def upload_employee_xlsx(
                 continue
 
             buffer.append(
-                EmployeeRecord(
+                CollabCard(
                     batch_id=batch.id,
                     company_id=target_company_id,
                     created_by=current.id,

@@ -12,7 +12,7 @@ class AuditLog(Base):
     timestamp: Mapped[dt.datetime] = mapped_column(default=dt.datetime.utcnow)
     user_id: Mapped[UUID | None] = mapped_column(nullable=True)
 
-    entity_type: Mapped[str]            # "batch" | "employee_record"
+    entity_type: Mapped[str]
     entity_id: Mapped[UUID]
-    action: Mapped[str]                 # "create" | "update" | ...
+    action: Mapped[str]
     details: Mapped[dict] = mapped_column(JSON)
