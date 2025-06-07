@@ -4,8 +4,13 @@ from pydantic import BaseModel
 
 class CompanyBase(BaseModel):
     name: str
-    phone_prefix: str | None = None          # ✅ new
-
+    phone_prefix: str | None = None
+    email: str | None = None
+    phone: str | None = None
+    web: str | None = None
+    note: str | None = None
+    description: str | None = None
+    
 
 class CompanyCreate(CompanyBase):
     pass

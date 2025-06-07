@@ -1,0 +1,19 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+	  {
+		"name": "Attach to Docker debugpy",
+		"type": "python",
+		"request": "attach",
+		"connect": { "host": "localhost", "port": 5678 },
+		"pathMappings": [
+		  {
+			"localRoot": "${workspaceFolder}/backend",  // host
+			"remoteRoot": "/app/backend"                // container
+		  }
+		],
+		"justMyCode": false
+	  }
+	]
+  }
+  

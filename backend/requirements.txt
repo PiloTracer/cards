@@ -1,5 +1,6 @@
 fastapi==0.111.*
 uvicorn[standard]==0.29.*
+debugpy==1.8.14
 sqlalchemy>=2.0
 asyncpg  # postgres driver
 pandas   # excel parsing
@@ -9,7 +10,7 @@ python-dotenv
 billiard>=4.2.1,<5.0
 ###########
 python-jose[cryptography]~=3.3
-passlib[bcrypt]~=1.7
+passlib[bcrypt]~=1.7.4
 pydantic[email]~=2.7
 pydantic-settings~=2.2     # ← new
 alembic~=1.13

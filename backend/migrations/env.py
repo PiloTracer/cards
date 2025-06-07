@@ -4,8 +4,7 @@ from logging.config import fileConfig
 
 from alembic import context
 from sqlalchemy import engine_from_config, pool
-from app.models import base  # make sure models are imported!  <-- KEEP
-from app.models import company, user   # 👈 make metadata include all tables
+from app.models import Base  # now pulls in everything via __init__.py
 
 # ──────────────────────────────────────────────────────────────
 # Alembic config & logging
@@ -19,7 +18,7 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # Give Alembic your model metadata for autogenerate
-target_metadata = base.Base.metadata
+target_metadata = Base.metadata
 
 # ──────────────────────────────────────────────────────────────
 # Offline migrations (no DB connection)

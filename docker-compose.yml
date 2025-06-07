@@ -39,10 +39,10 @@ services:
       - ./backend:/app/backend            # hot-reload
     ports:
       - "0.0.0.0:8000:8000"
+      - "0.0.0.0:5678:5678"
     depends_on:
       db:
         condition: service_healthy
-    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
   worker:
     build:
