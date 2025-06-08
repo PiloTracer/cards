@@ -1,23 +1,32 @@
-### deps stage – install once, cache forever
+########################  deps  #################################
 FROM node:20-alpine AS deps
 WORKDIR /app
+
+# ── tell pnpm where to put global binaries and make sure it's on PATH
 ENV PNPM_HOME=/usr/local/share/pnpm
-RUN corepack enable
+ENV PATH="${PNPM_HOME}:${PATH}"
 
-# copy only manifest/lockfile for layer-caching
-COPY frontend/pnpm-lock.yaml frontend/package.json ./
-RUN pnpm install --frozen-lockfile
+RUN corepack enable \
+ && pnpm config set store-dir ${PNPM_HOME}/store --global
 
-### dev stage – hot-reload with pnpm dev
+# copy manifest files **from repository root**
+COPY frontend/package.json ./
+RUN pnpm install
+
+########################  runtime  ##############################
 FROM node:20-alpine
 WORKDIR /app
+
+# same PNPM / PATH setup
 ENV PNPM_HOME=/usr/local/share/pnpm
-RUN corepack enable
+ENV PATH="${PNPM_HOME}:${PATH}"
 
-# copy node_modules from cached deps stage
+RUN corepack enable \
+ && pnpm config set store-dir ${PNPM_HOME}/store --global
+
+# bring cached node_modules
 COPY --from=deps /app/node_modules ./node_modules
-
-# source code will be mounted from host, but we need an initial copy
+# bring source (will be bind-mounted during dev, but initial copy is handy)
 COPY frontend/ .
 
 EXPOSE 3000

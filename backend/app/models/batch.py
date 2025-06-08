@@ -1,6 +1,8 @@
 from uuid import UUID, uuid4
 from sqlalchemy import ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.models.collabcard import CollabCard
 from .base import Base, PK_UUID
 from .mixins import TimeStampMixin
 from .enums import BatchStatus

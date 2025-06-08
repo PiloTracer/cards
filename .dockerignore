@@ -1,10 +1,12 @@
 # Runtime artefacts we never want inside the build context
 **/node_modules
+**/.pnpm-store
 **/.pnpm
 **/.next
 **/.turbo
 # Misc
 .git
+.idea
 .vscode
 .DS_Store
 .env

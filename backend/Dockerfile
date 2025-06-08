@@ -1,35 +1,46 @@
-# ─── build stage ───────────────────────────────────────────
+# ─── Build Stage ───────────────────────────────────────────
 FROM python:3.12-slim AS builder
+
 WORKDIR /app
+
+# Environment variables for build stage
 ENV PIP_DISABLE_PIP_VERSION_CHECK=on \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
+# Copy and build dependency wheels
 COPY backend/requirements.txt .
 RUN pip install --upgrade pip \
- && pip wheel -r requirements.txt -w /wheels
+ && pip wheel --no-cache-dir -r requirements.txt -w /wheels
 
-# ─── runtime stage ─────────────────────────────────────────
+# ─── Runtime Stage ─────────────────────────────────────────
 FROM python:3.12-slim
-WORKDIR /app
-ENV PYTHONPATH=/app PYTHONUNBUFFERED=1
 
-# wheel cache + requirements
+WORKDIR /app
+
+# Environment variables for runtime
+ENV PYTHONPATH=/app \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+# Copy wheels and requirements from builder
 COPY --from=builder /wheels /wheels
 COPY --from=builder /app/requirements.txt /app/requirements.txt
 
-# install deps *and* debugpy for remote debugging
-RUN pip install --no-index --find-links=/wheels -r /app/requirements.txt \
- && pip install --no-cache-dir debugpy~=1.8
+# Install dependencies and debugpy, clean up wheels
+RUN pip install --no-index --find-links=/wheels -r requirements.txt \
+ && pip install --no-cache-dir debugpy~=1.8 \
+ && rm -rf /wheels
 
-# copy source once (over-mounted later for hot reload)
+# Copy the entire backend directory (overlaid by volume at runtime)
 COPY backend /app
 
-# expose app + debug ports (for docs only)
+# Expose application and debug ports
 EXPOSE 8000 5678
 
+# Run the application with Uvicorn and debugpy
 CMD ["python", "-Xfrozen_modules=off", \
      "-m", "debugpy", "--listen", "0.0.0.0:5678", "--wait-for-client", \
      "-m", "uvicorn", "app.main:app", \
      "--host", "0.0.0.0", "--port", "8000", \
-     "--reload", "--reload-dir", "/app/backend"]
+     "--reload", "--reload-dir", "/app"]

@@ -2,6 +2,7 @@ from uuid import UUID, uuid4
 import datetime as dt
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from .base import Base, PK_UUID
 from .mixins import TimeStampMixin
 from .enums import RecordStatus

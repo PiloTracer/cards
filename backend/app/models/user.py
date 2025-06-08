@@ -1,16 +1,17 @@
-import enum, datetime as dt
+# app/models/user.py
+import enum
+import datetime as dt
 from uuid import UUID
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from .base import Base, PK_UUID
 
+from .base import Base, PK_UUID
 
 class Role(str, enum.Enum):
     owner = "owner"
     administrator = "administrator"
     collaborator = "collaborator"
     standard = "standard"
-
 
 class User(Base):
     __tablename__ = "users"
@@ -22,7 +23,7 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(default=True)
     company_id: Mapped[UUID | None] = mapped_column(ForeignKey("companies.id"), nullable=True)
 
-    # card (optional)
+    # Card fields (optional)
     card_full_name: Mapped[str | None]
     card_email: Mapped[str | None] = mapped_column(index=True)
     card_mobile_phone: Mapped[str | None]
@@ -30,7 +31,10 @@ class User(Base):
     card_office_phone: Mapped[str | None]
     card_web: Mapped[str | None]
 
-    # relationships
-    company: Mapped["Company | None"] = relationship(back_populates="users")
+    # Relationships (use string references to avoid circular imports)
+    company: Mapped["Company | None"] = relationship(
+        "Company", 
+        back_populates="users"
+    )
 
     created_at: Mapped[dt.datetime] = mapped_column(default=dt.datetime.utcnow)
