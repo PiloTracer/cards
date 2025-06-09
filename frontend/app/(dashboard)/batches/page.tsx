@@ -149,7 +149,7 @@ export default function BatchesPage() {
               <Button
                 variant="link"
                 size="sm"
-                href={`/dashboard/batch/${row.original.id}`}
+                href={`/batch/${row.original.id}`}
               >
                 View
               </Button>

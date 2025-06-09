@@ -62,7 +62,7 @@ export default function NewCompanyPage() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["companies"] });
-      router.push("/dashboard/companies");
+      router.push("/companies");
     },
   });
 
