@@ -13,7 +13,7 @@ export default function BatchesPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
 
-  // Fetch pending batches
+  // 1️⃣ Fetch pending batches
   const { data: batches = [] } = useQuery({
     queryKey: ["pendingBatches", user?.company_id],
     queryFn: async () => {
@@ -26,7 +26,7 @@ export default function BatchesPage() {
     },
   });
 
-  // Upload mutation
+  // 2️⃣ Upload mutation
   const { mutate: uploadXlsx, status: uploadStatus } = useMutation({
     mutationFn: async (file: File) => {
       const fd = new FormData();
@@ -54,7 +54,7 @@ export default function BatchesPage() {
           }}
           onFiles={(files) => uploadXlsx(files[0])}
         >
-          {/* disable when the mutation is in-flight */}
+          {/* disable while uploading */}
           <Button disabled={uploadStatus === "pending"}>
             Upload XLSX
           </Button>
@@ -64,12 +64,12 @@ export default function BatchesPage() {
       <DataGrid
         data={batches}
         columns={[
-          { header: "ID",             accessorKey: "id" },
-          { header: "File",           accessorKey: "originalFilename" },
-          { header: "Total",          accessorKey: "totalRecords" },
-          { header: "Processed",      accessorKey: "processedRecords" },
-          { header: "Status",         accessorKey: "status" },
-          { header: "Created",        accessorKey: "createdAt" },
+          { header: "ID",        accessorKey: "id" },
+          { header: "File",      accessorKey: "originalFilename" },
+          { header: "Total",     accessorKey: "totalRecords" },
+          { header: "Processed", accessorKey: "processedRecords" },
+          { header: "Status",    accessorKey: "status" },
+          { header: "Created",   accessorKey: "createdAt" },
           {
             header: "View",
             cell: ({ row }: { row: Row<Batch> }) => (

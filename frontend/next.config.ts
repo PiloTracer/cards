@@ -1,4 +1,6 @@
-/** @type {import('next').NextConfig} */
+// next.config.ts
+import { NextConfig } from "next";
+
 const nextConfig: NextConfig = {
   output: "standalone",
   images: {
@@ -11,7 +13,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  /* other options */
 };
 
 export default nextConfig;

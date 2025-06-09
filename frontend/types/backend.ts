@@ -1,6 +1,4 @@
-/* ------------------------------------------------------------------ *
- * lib/types.ts – typed mirrors of a few back-end models
- * ------------------------------------------------------------------ */
+// /types/backend.ts
 
 /**
  * The batch_status Postgres enum is exposed by the API as plain strings.
@@ -12,7 +10,7 @@ export type BatchStatus =
   | "completed"
   | "error";
 
-/** Company (read shape) – mirrors app.models.company.Company             */
+/** Company (read shape) – mirrors app.models.company.Company */
 export interface Company {
   id: string; // UUID
   name: string;
@@ -25,7 +23,7 @@ export interface Company {
   description?: string | null;
 }
 
-/** Batch – mirrors app.models.batch.Batch                                */
+/** Batch – mirrors app.models.batch.Batch */
 export interface Batch {
   id: string; // UUID
 
@@ -38,10 +36,32 @@ export interface Batch {
   processedRecords: number;
   status: BatchStatus;
 
-  createdAt?: string; // ISO-8601. backend TimeStampMixin adds these
+  createdAt?: string; // ISO-8601
   updatedAt?: string;
 
-  /* Optional helper for UI: the API may embed the related CollabCards.
-     Keep it loose so the UI can still render partial payloads. */
   records?: unknown[];
+}
+
+/**
+ * The record_status Postgres enum is exposed as plain strings.
+ * Keep in sync with `app/models/enums.py::RecordStatus`.
+ */
+export type CollabCardStatus =
+  | "pending"
+  | "generating"
+  | "generated"
+  | "failed";
+
+/** CollabCard – mirrors app.models.collabcards.CollabCard */
+export interface CollabCard {
+  id: string;
+  full_name: string;
+  email: string;
+  mobile_phone?: string | null;
+  job_title?: string | null;
+  office_phone?: string | null;
+
+  status: CollabCardStatus;
+  card_filename?: string | null;
+  generated_at?: string | null;
 }

@@ -1,15 +1,9 @@
 // app/(dashboard)/layout.tsx
-import "../globals.css";
-import { Sidebar } from "../../components/ui/sidebar";
-import { AuthProvider } from "@/lib/auth";
+"use client";
+
+import { Sidebar } from "@/components/ui/sidebar";
 import { ReactQueryClientProvider } from "@/lib/query";
-import { Inter } from "next/font/google";
-
-const inter = Inter({ subsets: ["latin"] });
-
-export const metadata = {
-  title: "E-Cards Dashboard",
-};
+import { AuthProvider } from "@/lib/auth";
 
 export default function DashboardLayout({
   children,
@@ -17,17 +11,15 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.className}>
-      <body>
-        <AuthProvider>
-          <ReactQueryClientProvider>
-            <div className="flex h-screen">
-              <Sidebar />
-              <main className="flex-1 overflow-auto p-6">{children}</main>
-            </div>
-          </ReactQueryClientProvider>
-        </AuthProvider>
-      </body>
-    </html>
+    <AuthProvider>
+      <ReactQueryClientProvider>
+        <div className="flex h-screen">
+          <Sidebar />
+          <main className="flex-1 overflow-auto p-6 bg-[var(--background)] dark:bg-gray-800">
+            {children}
+          </main>
+        </div>
+      </ReactQueryClientProvider>
+    </AuthProvider>
   );
 }
