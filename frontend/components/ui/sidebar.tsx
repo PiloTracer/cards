@@ -7,7 +7,6 @@ const nav = [
   { label: "Companies",  href: "/companies", key: "companies" },
   { label: "Users",      href: "/users", key: "users" },
   { label: "Batches",    href: "/batches", key: "batches" },
-  { label: "Cards",      href: "/cards", key: "cards" },
 ];
 
 export function Sidebar() {
