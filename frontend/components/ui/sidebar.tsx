@@ -5,11 +5,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navItems = [
-  { label: "Dashboard", href: "/batches" },
-  { label: "Companies",  href: "/companies" },
-  { label: "Users",      href: "/users" },
-  { label: "Batches",    href: "/batches" },
-  { label: "Cards",      href: "/cards" },
+  { label: "Dashboard", href: "/batches", key: "batches_main" },
+  { label: "Companies",  href: "/companies", key: "companies" },
+  { label: "Users",      href: "/users", key: "users" },
+  { label: "Batches",    href: "/batches", key: "batches" },
+  { label: "Cards",      href: "/cards", key: "cards" },
 ];
 
 export function Sidebar() {
@@ -22,7 +22,7 @@ export function Sidebar() {
           const isActive = path.startsWith(item.href);
           return (
             <Link
-              key={item.href}
+              key={item.key}
               href={item.href}
               className={`
                 block px-4 py-2 rounded-md transition-colors
