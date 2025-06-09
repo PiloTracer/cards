@@ -66,6 +66,7 @@ services:
       NEXT_TELEMETRY_DISABLED: "1"
       NODE_ENV: development
       NEXT_PUBLIC_API_URL: http://localhost:8000/api
+      CHOKIDAR_USEPOLLING: "1"
     volumes:
       - ./frontend:/app                  # live code
       - /app/node_modules                # anonymous volume keeps deps safe
