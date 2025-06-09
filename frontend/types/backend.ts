@@ -65,3 +65,39 @@ export interface CollabCard {
   card_filename?: string | null;
   generated_at?: string | null;
 }
+
+// types/backend.ts
+/**
+ * Mirrors app.models.user.User (read shape)
+ */
+export interface User {
+  id: string;
+  email: string;
+  role: "owner" | "administrator" | "collaborator" | "standard";
+  company_id: string | null;
+
+  // optional “card_…” fields
+  card_full_name?: string | null;
+  card_email?: string | null;
+  card_mobile_phone?: string | null;
+  card_job_title?: string | null;
+  card_office_phone?: string | null;
+  card_web?: string | null;
+}
+
+// types/backend.ts
+
+/**
+ * Mirrors app.models.company.Company (read shape)
+ */
+export interface Company {
+  id: string;               // UUID
+  name: string;
+
+  phonePrefix?: string | null;   // phone_prefix
+  email?: string | null;
+  phone?: string | null;
+  web?: string | null;
+  note?: string | null;
+  description?: string | null;
+}
