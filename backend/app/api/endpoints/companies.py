@@ -1,5 +1,3 @@
-# app/api/endpoints/companies.py
-
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,16 +11,44 @@ from app.api.dependencies import require_global_owner
 router = APIRouter(prefix="/companies", tags=["companies"])
 
 
-@router.get("/", response_model=list[CompanyRead])
+@router.get(
+    "/",
+    response_model=list[CompanyRead],
+    summary="List all companies (global owners only)",
+)
 async def get_companies(
     db: AsyncSession = Depends(get_db),
-    _: None = Depends(require_global_owner),   # only global owners
+    _: None = Depends(require_global_owner),
 ):
-    res = await db.execute(select(Company))
-    return res.scalars().all()
+    result = await db.execute(select(Company))
+    return result.scalars().all()
 
 
-@router.post("/", response_model=CompanyRead, status_code=status.HTTP_201_CREATED)
+@router.get(
+    "/{company_id}",
+    response_model=CompanyRead,
+    summary="Get a single company by ID (global owners only)",
+)
+async def get_company(
+    company_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    _: None = Depends(require_global_owner),
+):
+    company = await db.get(Company, company_id)
+    if not company:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Company {company_id} not found",
+        )
+    return company
+
+
+@router.post(
+    "/",
+    response_model=CompanyRead,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create a new company (global owners only)",
+)
 async def create_company(
     body: CompanyCreate,
     db: AsyncSession = Depends(get_db),
@@ -38,7 +64,6 @@ async def create_company(
 @router.patch(
     "/{company_id}",
     response_model=CompanyRead,
-    status_code=status.HTTP_200_OK,
     summary="Update an existing company (global owners only)",
 )
 async def update_company(
@@ -47,7 +72,7 @@ async def update_company(
     db: AsyncSession = Depends(get_db),
     _: None = Depends(require_global_owner),
 ):
-    # 1️⃣ Fetch the existing company
+    # 1️⃣ Fetch
     company = await db.get(Company, company_id)
     if not company:
         raise HTTPException(
@@ -55,12 +80,12 @@ async def update_company(
             detail=f"Company {company_id} not found",
         )
 
-    # 2️⃣ Apply only the provided fields
+    # 2️⃣ Apply only provided (unset fields are skipped)
     update_data = body.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(company, field, value)
 
-    # 3️⃣ Persist changes
+    # 3️⃣ Persist
     db.add(company)
     await db.commit()
     await db.refresh(company)

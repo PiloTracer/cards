@@ -15,7 +15,7 @@ export interface Company {
   id: string; // UUID
   name: string;
 
-  phonePrefix?: string | null;
+  phone_prefix?: string | null;
   email?: string | null;
   phone?: string | null;
   web?: string | null;
@@ -94,7 +94,7 @@ export interface Company {
   id: string;               // UUID
   name: string;
 
-  phonePrefix?: string | null;   // phone_prefix
+  phone_prefix?: string | null;   // phone_prefix
   email?: string | null;
   phone?: string | null;
   web?: string | null;

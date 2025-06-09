@@ -22,7 +22,7 @@ export default function CompaniesPage() {
       {/* header + New Company button */}
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold">Companies</h2>
-        <Button href="/dashboard/companies/new" variant="default" size="md">
+        <Button href="/companies/new" variant="default" size="md">
           New Company
         </Button>
       </div>
@@ -32,7 +32,7 @@ export default function CompaniesPage() {
         data={companies}
         columns={[
           { header: "Name",          accessorKey: "name" },
-          { header: "Phone Prefix",  accessorKey: "phonePrefix" },
+          { header: "Phone Prefix",  accessorKey: "phone_prefix" },
           { header: "Email",         accessorKey: "email" },
           { header: "Phone",         accessorKey: "phone" },
           { header: "Website",       accessorKey: "web" },
@@ -44,7 +44,7 @@ export default function CompaniesPage() {
               <Button
                 variant="link"
                 size="sm"
-                href={`/dashboard/companies/${row.original.id}`}
+                href={`/companies/${row.original.id}`}
               >
                 Edit
               </Button>
