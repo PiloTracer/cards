@@ -138,11 +138,11 @@ export default function BatchesPage() {
         data={batches}
         columns={[
           { header: "ID", accessorKey: "id" },
-          { header: "File", accessorKey: "originalFilename" },
-          { header: "Total", accessorKey: "totalRecords" },
-          { header: "Processed", accessorKey: "processedRecords" },
+          { header: "File", accessorKey: "original_filename" },
+          { header: "Total", accessorKey: "total_records" },
+          { header: "Processed", accessorKey: "processed_records" },
           { header: "Status", accessorKey: "status" },
-          { header: "Created", accessorKey: "createdAt" },
+          { header: "Created", accessorKey: "created_at" },
           {
             header: "View",
             cell: ({ row }: { row: Row<Batch> }) => (

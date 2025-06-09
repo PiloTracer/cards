@@ -30,14 +30,14 @@ export interface Batch {
   companyId: string | null;
   createdBy: string | null;
 
-  originalFilename?: string | null;
+  original_filename?: string | null;
 
-  totalRecords: number;
-  processedRecords: number;
+  total_records: number;
+  processed_records: number;
   status: BatchStatus;
 
-  createdAt?: string; // ISO-8601
-  updatedAt?: string;
+  created_at?: string; // ISO-8601
+  updated_at?: string;
 
   records?: unknown[];
 }
