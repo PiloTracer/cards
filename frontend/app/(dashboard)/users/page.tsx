@@ -25,7 +25,7 @@ export default function UsersPage() {
     <section className="space-y-8">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold">Users</h2>
-        <Button href="/dashboard/users/new" variant="default" size="md">
+        <Button href="/users/new" variant="default" size="md">
           New User
         </Button>
       </div>
@@ -42,7 +42,7 @@ export default function UsersPage() {
               <Button
                 variant="link"
                 size="sm"
-                href={`/dashboard/users/${row.original.id}`}
+                href={`/users/${row.original.id}`}
               >
                 Edit
               </Button>

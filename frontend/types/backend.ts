@@ -101,3 +101,21 @@ export interface Company {
   note?: string | null;
   description?: string | null;
 }
+
+// types/backend.ts
+/** Keep this in sync with app.models.user.Role */
+export type Role = "owner" | "administrator" | "collaborator" | "standard";
+
+/** Mirrors app.schemas.user.UserRead */
+export interface User {
+  id: string;
+  email: string;
+  role: Role;
+  company_id: string | null;
+  card_full_name?: string | null;
+  card_email?: string | null;
+  card_mobile_phone?: string | null;
+  card_job_title?: string | null;
+  card_office_phone?: string | null;
+  card_web?: string | null;
+}
