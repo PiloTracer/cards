@@ -13,11 +13,9 @@ export default function DashboardLayout({
   return (
     <AuthProvider>
       <ReactQueryClientProvider>
-        <div className="flex h-screen">
+        <div className="flex h-screen bg-[var(--bg)] text-[var(--fg)]">
           <Sidebar />
-          <main className="flex-1 overflow-auto p-6 bg-[var(--background)] dark:bg-gray-800">
-            {children}
-          </main>
+          <main className="flex-1 overflow-auto p-8">{children}</main>
         </div>
       </ReactQueryClientProvider>
     </AuthProvider>

@@ -2,7 +2,7 @@
 
 /* lib/upload.ts */
 import axios from 'axios';
-import { api } from './api';
+import api from './api';
 
 /**
  * Upload an Excel sheet of collaborator cards.
